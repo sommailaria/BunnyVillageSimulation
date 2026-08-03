@@ -28,22 +28,18 @@ public:
         canMakeVampireBunny = (gender == Gender::Radioactive);
     }
 
-    // Methods for announcing birth, aging, infection, and death
     void announceBirth() const { std::cout << "A new bunny is born! Their name is " << name << ". \n"; }
     void aging() { age += 1; std::cout << name << " is now " << age << " years old. \n"; }
-    ~Bunny() {  }
     void announceInfection() const { std::cout << name << " has been infected and is now a vampire bunny! \n"; }
-	void announceDeath(const std::string& cause) const { std::cout << name << " has died of " << cause << ". \n"; }
+    void announceDeath(const std::string& cause) const { std::cout << name << " has died of " << cause << ". \n"; }
 
-    // Getters useful for breeding and vampire bunny conversion
+    ~Bunny() {}   // teardown only — all death messaging goes through announceDeath()
+
+    // Getters useful for breeding, conversion, and death checks
     std::string getColor() const { return color; }
     Gender getGender() const { return gender; }
     bool isAdult() const { return age >= 2; }
     bool isRadioactive() const { return gender == Gender::Radioactive; }
-
-
-    // Collect the ages 
-
     bool isTooOld() const
     {
         if (isRadioactive())
@@ -64,7 +60,7 @@ public:
         bunnies.reserve(100);
         bunnies.emplace_back("Fluffy", "white", Gender::Female, 0);
         bunnies.back().announceBirth();
-        bunnies.emplace_back("TipTap", "brown", Gender::Female, 0);
+        bunnies.emplace_back("TipTap", "brown", Gender::Male, 0);
         bunnies.back().announceBirth();
         bunnies.emplace_back("Gina", "grey", Gender::Female, 0);
         bunnies.back().announceBirth();
@@ -75,8 +71,6 @@ public:
         bunnies.emplace_back("Lila", "dotted", Gender::Female, 0);
         bunnies.back().announceBirth();
         bunnies.emplace_back("Fiji", "cream", Gender::Female, 0);
-        bunnies.back().announceBirth();
-        bunnies.emplace_back("Riccardino", "light grey", Gender::Male, 0);
         bunnies.back().announceBirth();
     }
 
@@ -90,6 +84,7 @@ public:
         year += 1;
         std::cout << "--- Year " << year << " ---\n";
 
+        // Aging
         for (Bunny& b : bunnies) {
             b.aging();
         }
@@ -126,7 +121,7 @@ public:
             }
         }
 
-        // Collect eligible (non-radioactive) targets
+        // Collect eligible (non-radioactive) conversion targets
         std::vector<int> collectEligibleBunnies{};
         for (int i = 0; i < static_cast<int>(bunnies.size()); i++) {
             if (!bunnies[i].isRadioactive()) {
@@ -148,8 +143,7 @@ public:
             collectEligibleBunnies.erase(collectEligibleBunnies.begin() + pickIndex);
         }
 
-        // Deaths 
-
+        // Deaths (old age)
         for (auto it = bunnies.begin(); it != bunnies.end(); )
         {
             if (it->isTooOld())
@@ -174,9 +168,13 @@ int main()
     std::cout << std::endl;
 
     Simulation newGame;
-    for (int i = 0; i < 11; ++i) {
-        newGame.runOneTurn();
-    }
+    newGame.runOneTurn();
+    newGame.runOneTurn();
+    newGame.runOneTurn();
+    newGame.runOneTurn();
+    newGame.runOneTurn();
+    newGame.runOneTurn();
+    newGame.runOneTurn();
 
     return 0;
 }
