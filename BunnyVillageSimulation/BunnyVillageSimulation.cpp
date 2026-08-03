@@ -4,219 +4,179 @@
 #include <string>
 #include <vector>
 
-enum class Gender {
-	Male,
-	Female,
-	Radioactive
-};
-
+enum class Gender { Male, Female, Radioactive };
 
 class Simulation;
 
-class Bunny
-{
-
-	friend class Simulation;
-
+class Bunny {
+    friend class Simulation;
 private:
-	std::string name;
-	std::string color;
-	Gender gender;
-	int age;
-	bool canGetPregnant;
-	bool canMakeVampireBunny;
-
+    std::string name;
+    std::string color;
+    Gender gender;
+    int age;
+    bool canGetPregnant;
+    bool canMakeVampireBunny;
 public:
-	// constructor
-	Bunny(const std::string& givenName, const std::string& birthColor, const Gender& birthGender, const int& ageAtBirth)
-	{
-		color = birthColor;
-		name = givenName;
-		gender = birthGender;
-		age = ageAtBirth;
-		canGetPregnant = (gender == Gender::Female);
-		canMakeVampireBunny = (gender == Gender::Radioactive);
-	}
+    Bunny(const std::string& givenName, const std::string& birthColor, const Gender& birthGender, const int& ageAtBirth)
+    {
+        color = birthColor;
+        name = givenName;
+        gender = birthGender;
+        age = ageAtBirth;
+        canGetPregnant = (gender == Gender::Female);
+        canMakeVampireBunny = (gender == Gender::Radioactive);
+    }
 
-	void announceBirth() const
-	{
-		std::cout << "A new bunny is born! Their name is " << name << ". \n";
-	}
-	void aging()
-	{
-		age += 1;
-		std::cout << name << " is now " << age << " years old. \n";
-	}
+    // Methods for announcing birth, aging, infection, and death
+    void announceBirth() const { std::cout << "A new bunny is born! Their name is " << name << ". \n"; }
+    void aging() { age += 1; std::cout << name << " is now " << age << " years old. \n"; }
+    ~Bunny() {  }
+    void announceInfection() const { std::cout << name << " has been infected and is now a vampire bunny! \n"; }
+	void announceDeath(const std::string& cause) const { std::cout << name << " has died of " << cause << ". \n"; }
 
-	// Destructor
-	
-	     ~Bunny()
-	{
-		std::cout << "Bunny " << name << " has died! \n";
-	}
-	
+    // Getters useful for breeding and vampire bunny conversion
+    std::string getColor() const { return color; }
+    Gender getGender() const { return gender; }
+    bool isAdult() const { return age >= 2; }
+    bool isRadioactive() const { return gender == Gender::Radioactive; }
 
-	// Getters for bunny data useful for breeding and turning bunnies
-	std::string getColor() const { return color; }
-	Gender getGender() const { return gender; }
-	bool isAdult() const { return age >= 2; }
-	bool isRadioactive() const { return gender == Gender::Radioactive; };
 
+    // Collect the ages 
+
+    bool isTooOld() const
+    {
+        if (isRadioactive())
+        {
+            return age > 50;
+        }
+        return age > 10;
+    }
 };
 
-
-
-class Simulation
-{
+class Simulation {
 private:
-	int year = 0;
-	std::vector<Bunny> bunnies;
+    int year = 0;
+    std::vector<Bunny> bunnies;
 public:
-	Simulation()
-	{
-		// Creating the 5 starter bunnies
-		bunnies.reserve(100);
-		bunnies.emplace_back("Fluffy", "white", Gender::Female, 0);
-		bunnies.back().announceBirth();
-		bunnies.emplace_back("TipTap", "brown", Gender::Female, 0);
-		bunnies.back().announceBirth();
-		bunnies.emplace_back("Gina", "grey", Gender::Female, 0);
-		bunnies.back().announceBirth();
-		bunnies.emplace_back("Tamburino", "black", Gender::Male, 0);
-		bunnies.back().announceBirth();
-		bunnies.emplace_back("Giulio Cesare", "gold", Gender::Radioactive, 0);
-		bunnies.back().announceBirth();
-		bunnies.emplace_back("Lila", "dotted", Gender::Female, 0);
-		bunnies.back().announceBirth();
-		bunnies.emplace_back("Fiji", "cream", Gender::Female, 0);
-		bunnies.back().announceBirth();
+    Simulation()
+    {
+        bunnies.reserve(100);
+        bunnies.emplace_back("Fluffy", "white", Gender::Female, 0);
+        bunnies.back().announceBirth();
+        bunnies.emplace_back("TipTap", "brown", Gender::Female, 0);
+        bunnies.back().announceBirth();
+        bunnies.emplace_back("Gina", "grey", Gender::Female, 0);
+        bunnies.back().announceBirth();
+        bunnies.emplace_back("Tamburino", "black", Gender::Male, 0);
+        bunnies.back().announceBirth();
+        bunnies.emplace_back("Giulio Cesare", "gold", Gender::Radioactive, 0);
+        bunnies.back().announceBirth();
+        bunnies.emplace_back("Lila", "dotted", Gender::Female, 0);
+        bunnies.back().announceBirth();
+        bunnies.emplace_back("Fiji", "cream", Gender::Female, 0);
+        bunnies.back().announceBirth();
+        bunnies.emplace_back("Riccardino", "light grey", Gender::Male, 0);
+        bunnies.back().announceBirth();
+    }
 
-	}
+    std::vector<std::string> nameBank{ "Clover", "Yuzu", "Basil", "Onigiri", "NafNaf", "Cicero", "Leo", "Biscotto", "Flopsy", "Coco", "Peanut", "BunBun" };
 
-	// Name pool 
-	std::vector<std::string> nameBank{ "Clover", "Yuzu", "Basil", "Onigiri", "NafNaf", "Cicero", "Leo", "Biscotto", "Flopsy", "Coco", "Peanut", "BunBun" };
+    int getYear() const { return year; }
+    int getBunnyCount() const { return static_cast<int>(bunnies.size()); }
 
-	// Getting current year and number of bunnies 
-	int getYear() const { return year; }
-	int getBunnyCount() const { return bunnies.size(); }
+    void runOneTurn()
+    {
+        year += 1;
+        std::cout << "--- Year " << year << " ---\n";
 
-	void runOneTurn()
-	{
-		year += 1;
-		std::cout << "--- Year " << year << " ---\n";
-		for (Bunny& b : bunnies)
-		{
-			b.aging();
-		}
+        for (Bunny& b : bunnies) {
+            b.aging();
+        }
 
-		// Find males and collect mom color
-		bool foundMale{};
-		std::vector<std::string> femaleColor;
-		for (Bunny& b : bunnies)
-		{
-			if (b.getGender() == Gender::Male && b.isAdult() && !b.isRadioactive())
-			{
-				foundMale = true;
-			}
-			if (b.getGender() == Gender::Female && b.isAdult() && !b.isRadioactive())
-			{
-				femaleColor.push_back(b.getColor());
-			}
-		}
+        // Find adult male bunny and adult female bunnies for breeding
+        bool foundMale = false;
+        std::vector<std::string> femaleColor;
+        for (Bunny& b : bunnies) {
+            if (b.getGender() == Gender::Male && b.isAdult()) {
+                foundMale = true;
+            }
+            if (b.getGender() == Gender::Female && b.isAdult()) {
+                femaleColor.push_back(b.getColor());
+            }
+        }
 
-		// Start breeding
-		if (foundMale)
-		{
-			for (int i = 0; i < femaleColor.size(); i++)
-			{
-				int nameIndex = rand() % nameBank.size();
-				std::string namePick = nameBank[nameIndex];
-				int genderPick = rand() % 2;
-				Gender babyGender;
-				if (genderPick == 0) { babyGender = Gender::Male; }
-				else { babyGender = Gender::Female; }
-				bunnies.emplace_back(namePick, femaleColor[i], babyGender, 0);
-				bunnies.back().announceBirth();
-			}
-		}
+        // Breeding
+        if (foundMale) {
+            for (size_t i = 0; i < femaleColor.size(); i++) {
+                int nameIndex = rand() % static_cast<int>(nameBank.size());
+                std::string namePick = nameBank[nameIndex];
+                int genderPick = rand() % 2;
+                Gender babyGender = (genderPick == 0) ? Gender::Male : Gender::Female;
+                bunnies.emplace_back(namePick, femaleColor[i], babyGender, 0);
+                bunnies.back().announceBirth();
+            }
+        }
 
-		// Find bunny who can infect other bunnies
+        // Count vampire bunnies
+        int findVampireBunnies = 0;
+        for (Bunny& b : bunnies) {
+            if (b.isRadioactive()) {
+                findVampireBunnies++;
+            }
+        }
 
-		int findVampireBunnies{};
+        // Collect eligible (non-radioactive) targets
+        std::vector<int> collectEligibleBunnies{};
+        for (int i = 0; i < static_cast<int>(bunnies.size()); i++) {
+            if (!bunnies[i].isRadioactive()) {
+                collectEligibleBunnies.push_back(i);
+            }
+        }
 
-		for (Bunny& b : bunnies)
-		{
-			if (b.isRadioactive())
-			{
-				findVampireBunnies++;
-			}
-		}
+        // Convert
+        for (int i = 0; i < findVampireBunnies; i++) {
+            if (collectEligibleBunnies.size() == 0) {
+                break;
+            }
+            int pickIndex = rand() % static_cast<int>(collectEligibleBunnies.size());
+            int pickBunny = collectEligibleBunnies[pickIndex];
+            bunnies[pickBunny].gender = Gender::Radioactive;
+            bunnies[pickBunny].canGetPregnant = false;
+            bunnies[pickBunny].canMakeVampireBunny = true;
+            bunnies[pickBunny].announceInfection();
+            collectEligibleBunnies.erase(collectEligibleBunnies.begin() + pickIndex);
+        }
 
-		if (findVampireBunnies >= 1)
-		{
-			int convertedCount{};
+        // Deaths 
 
-			for (Bunny& b : bunnies)
-			{
-
-				if (!b.isRadioactive())
-				{
-
-
-					b.gender = Gender::Radioactive;
-					b.canGetPregnant = false;
-					b.canMakeVampireBunny = true;
-					convertedCount++;
-
-					if (convertedCount == findVampireBunnies)
-					{
-						
-						std::cout << b.name << " was turned into a Vampire Bunny! \n";
-						break;
-					}
-
-
-				}
-
-			}
-		}
-
-
-	}
+        for (auto it = bunnies.begin(); it != bunnies.end(); )
+        {
+            if (it->isTooOld())
+            {
+                it->announceDeath("old age");
+                it = bunnies.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
 };
-
-
-
 
 int main()
 {
-	srand(static_cast<unsigned int>(time(0)));
+    srand(static_cast<unsigned int>(time(0)));
 
+    std::cout << "-------------- Bunny Valley --------------------" << "\n";
+    std::cout << " Starting the simulation..." << "\n";
+    std::cout << std::endl;
 
-	std::cout << "-------------- Bunny Valley --------------------" << "\n";
-	std::cout << " Starting the simulation..." << "\n";
-	std::cout << std::endl;
+    Simulation newGame;
+    for (int i = 0; i < 11; ++i) {
+        newGame.runOneTurn();
+    }
 
-
-	Simulation newGame;
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	newGame.runOneTurn();
-	return 0;
+    return 0;
 }
