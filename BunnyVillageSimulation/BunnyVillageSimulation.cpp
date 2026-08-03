@@ -1,4 +1,6 @@
 #include <iostream>
+#include <algorithm>
+#include <functional>
 #include <cstdlib>
 #include <ctime>
 #include <string>
@@ -33,13 +35,17 @@ public:
     void announceInfection() const { std::cout << name << " has been infected and is now a vampire bunny! \n"; }
     void announceDeath(const std::string& cause) const { std::cout << name << " has died of " << cause << ". \n"; }
 
-    ~Bunny() {}   // teardown only — all death messaging goes through announceDeath()
+    ~Bunny() {}
 
-    // Getters useful for breeding, conversion, and death checks
+    // Getters useful for breeding, conversion, death checks, and printing
     std::string getColor() const { return color; }
     Gender getGender() const { return gender; }
     bool isAdult() const { return age >= 2; }
     bool isRadioactive() const { return gender == Gender::Radioactive; }
+    int getAge() const { return age; }
+    std::string getName() const { return name; }
+
+    // Death conditions (old age)
     bool isTooOld() const
     {
         if (isRadioactive())
@@ -49,6 +55,25 @@ public:
         return age > 10;
     }
 };
+
+// Functions to print bunny details, sorted by age
+std::string genderToString(Gender g)
+{
+    switch (g)
+    {
+    case Gender::Male: return "Male";
+    case Gender::Female: return "Female";
+    case Gender::Radioactive: return "Radioactive";
+    }
+    return "Unknown";
+}
+
+std::ostream& operator<<(std::ostream& os, const Bunny& b)
+{
+    os << b.getName() << ", age " << b.getAge() << ", " << b.getColor()
+        << ", " << genderToString(b.getGender());
+    return os;
+}
 
 class Simulation {
 private:
@@ -82,7 +107,7 @@ public:
     void runOneTurn()
     {
         year += 1;
-        std::cout << "--- Year " << year << " ---\n";
+        std::cout << "Bunny Valley is now on Year " << year << ".\n";
 
         // Aging
         for (Bunny& b : bunnies) {
@@ -116,15 +141,15 @@ public:
         // Count vampire bunnies
         int findVampireBunnies = 0;
         for (Bunny& b : bunnies) {
-            if (b.isRadioactive()) {
+            if (b.isRadioactive() && b.isAdult()) {
                 findVampireBunnies++;
             }
         }
 
-        // Collect eligible (non-radioactive) conversion targets
+        // Collect  (non-radioactive) conversion targets
         std::vector<int> collectEligibleBunnies{};
         for (int i = 0; i < static_cast<int>(bunnies.size()); i++) {
-            if (!bunnies[i].isRadioactive()) {
+            if (!bunnies[i].isRadioactive() && bunnies[i].isAdult()) {
                 collectEligibleBunnies.push_back(i);
             }
         }
@@ -156,6 +181,38 @@ public:
                 ++it;
             }
         }
+
+        // Food shortage
+        if (bunnies.size() > 1000) {
+            int half = bunnies.size() / 2;
+            std::vector<int> pickHalfBunnies{};
+            for (int i = 0; i < static_cast<int>(bunnies.size()); i++) {
+                pickHalfBunnies.push_back(i);
+            }
+            std::vector<int> condemnedBunnies{};
+            for (int i = 0; i < half; i++) {
+                int pickIndex = rand() % static_cast<int>(pickHalfBunnies.size());
+                int pickBunny = pickHalfBunnies[pickIndex];
+                condemnedBunnies.push_back(pickBunny);
+                pickHalfBunnies.erase(pickHalfBunnies.begin() + pickIndex);
+            }
+            std::sort(condemnedBunnies.begin(), condemnedBunnies.end(), std::greater<int>());
+            for (int i = 0; i < static_cast<int>(condemnedBunnies.size()); i++)
+            {
+                int deadIndex = condemnedBunnies[i];
+                bunnies[deadIndex].announceDeath("food shortage");
+                bunnies.erase(bunnies.begin() + deadIndex);
+            }
+        }
+
+        // Display all bunnies' details, sorted by age
+        std::sort(bunnies.begin(), bunnies.end(), [](const Bunny& a, const Bunny& b) {
+            return a.getAge() < b.getAge();
+            });
+        std::cout << "Here are the bunnies currently living in Bunny Valley: \n";
+        for (const Bunny& b : bunnies) {
+            std::cout << b << "\n";
+        }
     }
 };
 
@@ -168,13 +225,23 @@ int main()
     std::cout << std::endl;
 
     Simulation newGame;
-    newGame.runOneTurn();
-    newGame.runOneTurn();
-    newGame.runOneTurn();
-    newGame.runOneTurn();
-    newGame.runOneTurn();
-    newGame.runOneTurn();
-    newGame.runOneTurn();
+    
+    while (newGame.getBunnyCount() > 0)
+    {
+        newGame.runOneTurn();
+
+        if (newGame.getBunnyCount() > 0)
+        {
+            std::cout << "\nPress Enter to continue...";
+            std::cin.get();
+        }
+    }
+
+    std::cout << "\nAll bunnies have gone extinct after "
+        << newGame.getYear() << " years.\n";
+
+
+
 
     return 0;
 }
