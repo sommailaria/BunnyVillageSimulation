@@ -5,6 +5,7 @@
 #include <ctime>
 #include <string>
 #include <vector>
+#include <iomanip>
 
 enum class Gender { Male, Female, Radioactive };
 
@@ -40,7 +41,7 @@ public:
     // Getters useful for breeding, conversion, death checks, and printing
     std::string getColor() const { return color; }
     Gender getGender() const { return gender; }
-    bool isAdult() const { return age >= 2; }
+    bool isAdult() const { return age >= 2 && !isRadioactive(); }
     bool isRadioactive() const { return gender == Gender::Radioactive; }
     int getAge() const { return age; }
     std::string getName() const { return name; }
@@ -70,8 +71,12 @@ std::string genderToString(Gender g)
 
 std::ostream& operator<<(std::ostream& os, const Bunny& b)
 {
-    os << b.getName() << ", age " << b.getAge() << ", " << b.getColor()
-        << ", " << genderToString(b.getGender());
+    os << std::left
+        << std::setw(20) << b.getName()
+        << std::setw(6) << b.getAge()
+        << std::setw(15) << b.getColor()
+        << std::setw(15) << genderToString(b.getGender());
+
     return os;
 }
 
@@ -107,9 +112,15 @@ public:
     void runOneTurn()
     {
         year += 1;
-        std::cout << "Bunny Valley is now on Year " << year << ".\n";
+        std::cout << "\n";
+        std::cout << "========================================\n";
+        std::cout << "           BUNNY VALLEY\n";
+        std::cout << "               YEAR " << year << '\n';
+        std::cout << "========================================\n\n";
 
         // Aging
+
+        std::cout << "--- Aging ---\n";
         for (Bunny& b : bunnies) {
             b.aging();
         }
@@ -127,6 +138,7 @@ public:
         }
 
         // Breeding
+        std::cout << "--- Births ---\n";
         if (foundMale) {
             for (size_t i = 0; i < femaleColor.size(); i++) {
                 int nameIndex = rand() % static_cast<int>(nameBank.size());
@@ -141,7 +153,7 @@ public:
         // Count vampire bunnies
         int findVampireBunnies = 0;
         for (Bunny& b : bunnies) {
-            if (b.isRadioactive() && b.isAdult()) {
+            if (b.isRadioactive() && b.getAge() >= 2) {
                 findVampireBunnies++;
             }
         }
@@ -155,6 +167,7 @@ public:
         }
 
         // Convert
+        std::cout << "--- Infections ---\n";
         for (int i = 0; i < findVampireBunnies; i++) {
             if (collectEligibleBunnies.size() == 0) {
                 break;
@@ -169,6 +182,7 @@ public:
         }
 
         // Deaths (old age)
+        std::cout << "--- Deaths ---\n";
         for (auto it = bunnies.begin(); it != bunnies.end(); )
         {
             if (it->isTooOld())
@@ -209,10 +223,23 @@ public:
         std::sort(bunnies.begin(), bunnies.end(), [](const Bunny& a, const Bunny& b) {
             return a.getAge() < b.getAge();
             });
-        std::cout << "Here are the bunnies currently living in Bunny Valley: \n";
-        for (const Bunny& b : bunnies) {
-            std::cout << b << "\n";
+        std::cout << "Current Bunny Population\n";
+        std::cout << "-------------------------------------------------------------\n";
+
+        std::cout << std::left
+            << std::setw(20) << "Name"
+            << std::setw(6) << "Age"
+            << std::setw(15) << "Color"
+            << std::setw(15) << "Gender" << '\n';
+
+        std::cout << "-------------------------------------------------------------\n";
+
+        for (const Bunny& b : bunnies)
+        {
+            std::cout << b << '\n';
         }
+
+        std::cout << "-------------------------------------------------------------\n";
     }
 };
 
