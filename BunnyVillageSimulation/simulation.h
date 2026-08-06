@@ -17,16 +17,22 @@ private:
     std::vector<std::string> nameBank{
         "Clover",
         "Yuzu",
-        "Basil",
+        "Basilico",
         "Onigiri",
         "NafNaf",
-        "Cicero",
+        "Cicerone",
         "Leo",
         "Biscotto",
         "Flopsy",
         "Coco",
         "Peanut",
-        "BunBun"
+        "BunBun", 
+        "Carota",
+        "Fiji", 
+        "Miso",
+        "Carbone",
+        "Batuffolo"
+
     };
 
 

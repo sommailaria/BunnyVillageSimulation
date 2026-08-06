@@ -26,12 +26,6 @@ Simulation::Simulation()
 
     bunnies.emplace_back("Giulio Cesare", "gold", Gender::Radioactive, 0);
     bunnies.back().announceBirth();
-
-    bunnies.emplace_back("Lila", "dotted", Gender::Female, 0);
-    bunnies.back().announceBirth();
-
-    bunnies.emplace_back("Fiji", "cream", Gender::Female, 0);
-    bunnies.back().announceBirth();
 }
 
 int Simulation::getYear() const
@@ -101,20 +95,31 @@ void Simulation::runOneTurn()
         }
     }
 
-    // Convert
+    // Convert - before conversion, every mutant rolls their chance and if chance > 15, an eligible bunny picked randomly is infected
     std::cout << "--- Infections ---\n";
-    for (int i = 0; i < findVampireBunnies; i++) {
-        if (collectEligibleBunnies.size() == 0) {
+    for (int i = 0; i < findVampireBunnies; i++)
+    {
+        if (collectEligibleBunnies.empty())
+        {
             break;
         }
-        int pickIndex = rand() % static_cast<int>(collectEligibleBunnies.size());
-        int pickBunny = collectEligibleBunnies[pickIndex];
-        bunnies[pickBunny].gender = Gender::Radioactive;
-        bunnies[pickBunny].canGetPregnant = false;
-        bunnies[pickBunny].canMakeVampireBunny = true;
-        bunnies[pickBunny].announceInfection();
-        collectEligibleBunnies.erase(collectEligibleBunnies.begin() + pickIndex);
+
+        int infectionChance = rand() % 100;
+
+        if (infectionChance < 30)
+        {
+            int pickIndex = rand() % static_cast<int>(collectEligibleBunnies.size());
+            int pickBunny = collectEligibleBunnies[pickIndex];
+
+            bunnies[pickBunny].gender = Gender::Radioactive;
+            bunnies[pickBunny].canGetPregnant = false;
+            bunnies[pickBunny].canMakeVampireBunny = true;
+            bunnies[pickBunny].announceInfection();
+
+            collectEligibleBunnies.erase(collectEligibleBunnies.begin() + pickIndex);
+        }
     }
+        
 
     // Deaths (old age)
     std::cout << "--- Deaths ---\n";
