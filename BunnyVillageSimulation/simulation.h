@@ -31,7 +31,7 @@ private:
         "Fiji", 
         "Miso",
         "Carbone",
-        "Batuffolo",
+        "Batuffolo"
 
     };
 
