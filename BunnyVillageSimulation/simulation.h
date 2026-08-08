@@ -12,7 +12,7 @@ private:
 
     int year = 0;
 
-    std::vector<Bunny> bunnies;
+    std::vector<Bunny*> bunnies;
 
     std::vector<std::string> nameBank{
         "Clover",
@@ -31,7 +31,8 @@ private:
         "Fiji", 
         "Miso",
         "Carbone",
-        "Batuffolo"
+        "Batuffolo",
+        "Lilo"
 
     };
 
@@ -39,6 +40,9 @@ private:
 public:
 
     Simulation();
+
+    ~Simulation();
+
 
     int getYear() const;
 

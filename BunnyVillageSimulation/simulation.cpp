@@ -10,22 +10,31 @@
 
 Simulation::Simulation()
 {
-    bunnies.reserve(100);
+  
 
-    bunnies.emplace_back("Fluffy", "white", Gender::Female, 0);
-    bunnies.back().announceBirth();
+    bunnies.push_back(new Bunny("Fluffy", "white", Gender::Female, 0));
+    bunnies.back() ->announceBirth();
 
-    bunnies.emplace_back("TipTap", "brown", Gender::Male, 0);
-    bunnies.back().announceBirth();
+    bunnies.push_back(new Bunny("TipTap", "brown", Gender::Male, 0));
+    bunnies.back()->announceBirth();
 
-    bunnies.emplace_back("Gina", "grey", Gender::Female, 0);
-    bunnies.back().announceBirth();
+    bunnies.push_back(new Bunny("Gina", "grey", Gender::Female, 0));
+    bunnies.back()->announceBirth();
 
-    bunnies.emplace_back("Tamburino", "black", Gender::Male, 0);
-    bunnies.back().announceBirth();
+    bunnies.push_back(new Bunny("Tamburino", "black", Gender::Male, 0));
+    bunnies.back()->announceBirth();
 
-    bunnies.emplace_back("Giulio Cesare", "gold", Gender::Radioactive, 0);
-    bunnies.back().announceBirth();
+    bunnies.push_back(new Bunny("Giulio Cesare", "gold", Gender::Radioactive, 0));
+    bunnies.back()->announceBirth();
+
+}
+
+Simulation::~Simulation()
+{
+    for (Bunny* b : bunnies)
+    {
+        delete b;
+    }
 }
 
 int Simulation::getYear() const
@@ -50,19 +59,19 @@ void Simulation::runOneTurn()
     // Aging
 
     std::cout << "--- Aging ---\n";
-    for (Bunny& b : bunnies) {
-        b.aging();
+    for (Bunny* b : bunnies) {
+        b->aging();
     }
 
     // Find adult male bunny and adult female bunnies for breeding
     bool foundMale = false;
     std::vector<std::string> femaleColor;
-    for (Bunny& b : bunnies) {
-        if (b.getGender() == Gender::Male && b.isAdult()) {
+    for (Bunny* b  : bunnies) {
+        if (b->getGender() == Gender::Male && b->isAdult()) {
             foundMale = true;
         }
-        if (b.getGender() == Gender::Female && b.isAdult()) {
-            femaleColor.push_back(b.getColor());
+        if (b->getGender() == Gender::Female && b->isAdult()) {
+            femaleColor.push_back(b->getColor());
         }
     }
 
@@ -74,15 +83,16 @@ void Simulation::runOneTurn()
             std::string namePick = nameBank[nameIndex];
             int genderPick = rand() % 2;
             Gender babyGender = (genderPick == 0) ? Gender::Male : Gender::Female;
-            bunnies.emplace_back(namePick, femaleColor[i], babyGender, 0);
-            bunnies.back().announceBirth();
+            Bunny* newBunny = new Bunny(namePick, femaleColor[i], babyGender, 0);
+            bunnies.push_back(newBunny);
+            newBunny-> announceBirth();
         }
     }
 
-    // Count vampire bunnies
+    // Count vampire bunnies that can infect other bunnies
     int findVampireBunnies = 0;
-    for (Bunny& b : bunnies) {
-        if (b.isRadioactive() && b.getAge() >= 2) {
+    for (Bunny* b : bunnies) {
+        if (b->isRadioactive()) {
             findVampireBunnies++;
         }
     }
@@ -90,12 +100,13 @@ void Simulation::runOneTurn()
     // Collect  (non-radioactive) conversion targets
     std::vector<int> collectEligibleBunnies{};
     for (int i = 0; i < static_cast<int>(bunnies.size()); i++) {
-        if (!bunnies[i].isRadioactive() && bunnies[i].isAdult()) {
+        if (!bunnies[i]->isRadioactive()) {
             collectEligibleBunnies.push_back(i);
         }
     }
 
-    // Convert - before conversion, every mutant rolls their chance and if chance > 15, an eligible bunny picked randomly is infected
+    // Convert - before conversion, every mutant rolls their chance and if chance > 30, an eligible bunny picked randomly is infected.
+    // After conversion, converted bunnies are removed from vector to avoid duplicates
     std::cout << "--- Infections ---\n";
     for (int i = 0; i < findVampireBunnies; i++)
     {
@@ -103,19 +114,16 @@ void Simulation::runOneTurn()
         {
             break;
         }
-
         int infectionChance = rand() % 100;
 
         if (infectionChance < 30)
         {
             int pickIndex = rand() % static_cast<int>(collectEligibleBunnies.size());
             int pickBunny = collectEligibleBunnies[pickIndex];
-
-            bunnies[pickBunny].gender = Gender::Radioactive;
-            bunnies[pickBunny].canGetPregnant = false;
-            bunnies[pickBunny].canMakeVampireBunny = true;
-            bunnies[pickBunny].announceInfection();
-
+            bunnies[pickBunny]->gender = Gender::Radioactive;
+            bunnies[pickBunny]->canGetPregnant = false;
+            bunnies[pickBunny]->canMakeVampireBunny = true;
+            bunnies[pickBunny]->announceInfection();
             collectEligibleBunnies.erase(collectEligibleBunnies.begin() + pickIndex);
         }
     }
@@ -125,9 +133,10 @@ void Simulation::runOneTurn()
     std::cout << "--- Deaths ---\n";
     for (auto it = bunnies.begin(); it != bunnies.end(); )
     {
-        if (it->isTooOld())
+        if ((*it)->isTooOld())
         {
-            it->announceDeath("old age");
+            (*it)->announceDeath("old age");
+            delete *it;
             it = bunnies.erase(it);
         }
         else
@@ -154,14 +163,14 @@ void Simulation::runOneTurn()
         for (int i = 0; i < static_cast<int>(condemnedBunnies.size()); i++)
         {
             int deadIndex = condemnedBunnies[i];
-            bunnies[deadIndex].announceDeath("food shortage");
+            bunnies[deadIndex]->announceDeath("food shortage");
             bunnies.erase(bunnies.begin() + deadIndex);
         }
     }
 
     // Display all bunnies' details, sorted by age
-    std::sort(bunnies.begin(), bunnies.end(), [](const Bunny& a, const Bunny& b) {
-        return a.getAge() < b.getAge();
+    std::sort(bunnies.begin(), bunnies.end(), [](const Bunny* a, const Bunny* b) {
+        return a->getAge() < b->getAge();
         });
     std::cout << "Current Bunny Population\n";
     std::cout << "-------------------------------------------------------------\n";
@@ -174,9 +183,9 @@ void Simulation::runOneTurn()
 
     std::cout << "-------------------------------------------------------------\n";
 
-    for (const Bunny& b : bunnies)
+    for (const Bunny* b : bunnies)
     {
-        std::cout << b << '\n';
+        std::cout << *b << '\n';
     }
 
     std::cout << "-------------------------------------------------------------\n";

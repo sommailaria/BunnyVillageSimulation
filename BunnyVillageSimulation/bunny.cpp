@@ -91,6 +91,7 @@ bool Bunny::isTooOld() const
     return age > 10;
 }
 
+// Get bunny information and print them 
 std::string genderToString(Gender g)
 {
     switch (g)
@@ -108,7 +109,7 @@ std::string genderToString(Gender g)
     return "Unknown";
 }
 
-
+// Get bunny information and print them 
 std::ostream& operator<<(std::ostream& os, const Bunny& b)
 {
     os << std::left
