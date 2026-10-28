@@ -164,6 +164,7 @@ void Simulation::runOneTurn()
         {
             int deadIndex = condemnedBunnies[i];
             bunnies[deadIndex]->announceDeath("food shortage");
+            delete bunnies[deadIndex];
             bunnies.erase(bunnies.begin() + deadIndex);
         }
     }
