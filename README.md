@@ -67,11 +67,7 @@ The project separates individual entity behavior from simulation management:
 
 ## Learning Objectives
 
-This project was created to practice translating a collection of interconnected rules into a working simulation.
-
-Implementing the population lifecycle provided hands-on experience with managing dynamically allocated entities, processing events in a defined order, and updating shared simulation state.
-
-The project also provided an opportunity to explore concepts applicable to gameplay programming, particularly entity management, probabilistic events, and simulation systems.
+The project provided an opportunity to explore concepts applicable to gameplay programming, particularly entity management, probabilistic events, and simulation systems.
 
 
 
