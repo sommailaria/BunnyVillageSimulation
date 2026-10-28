@@ -43,6 +43,9 @@ public:
 
     ~Simulation();
 
+Simulation(const Simulation&) = delete;
+Simulation& operator=(const Simulation&) = delete;
+
 
     int getYear() const;
 
